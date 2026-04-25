@@ -1,0 +1,70 @@
+.accounting-dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dashboard-hero {
+  background: linear-gradient(135deg, #0f172a, #312e81);
+  color: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #c4b5fd;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.dashboard-hero h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.dashboard-hero p {
+  margin: 0;
+  color: #e2e8f0;
+  max-width: 62ch;
+}
+
+.dashboard-stamp {
+  min-width: 220px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-stamp span,
+.dashboard-stamp small {
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.dashboard-stamp strong {
+  font-size: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

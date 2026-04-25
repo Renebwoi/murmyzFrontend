@@ -1,0 +1,271 @@
+.accounting-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workspace-warning,
+.workspace-empty {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 16px;
+  padding: 16px;
+  color: #9a3412;
+}
+
+.workspace-empty {
+  text-align: center;
+}
+
+.workspace-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workspace-header-row,
+.approval-card-header,
+.workspace-final,
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.workspace-header-row h2,
+.approval-card h3 {
+  margin: 0;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.workspace-header-row p,
+.approval-card p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.workspace-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.toolbar-pill {
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.workspace-table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.workspace-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.workspace-table th,
+.workspace-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.workspace-table th {
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.workspace-table input,
+.workspace-table textarea,
+.workspace-table select,
+.summary-box input,
+.summary-box textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #0f172a;
+}
+
+.workspace-table input:disabled,
+.workspace-table textarea:disabled,
+.workspace-table select:disabled,
+.summary-box input:disabled,
+.summary-box textarea:disabled {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.workspace-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warning-text {
+  margin: 0;
+  color: #b45309;
+  font-weight: 700;
+}
+
+.ok-text {
+  margin: 0;
+  color: #047857;
+  font-weight: 700;
+}
+
+.workspace-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workspace-summary-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.summary-box {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-box span {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.summary-box strong {
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.summary-box.full {
+  grid-column: 1 / -1;
+}
+
+.workspace-final {
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+  border: 1px solid #c7d2fe;
+}
+
+.workspace-final strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.workspace-final button,
+.approval-actions button,
+.workspace-empty button {
+  border: none;
+  background: #7c3aed;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workspace-final button:disabled,
+.approval-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.approval-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.approval-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.approval-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.approval-card-grid span {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.approval-actions button {
+  background: #0f766e;
+}
+
+.approval-actions button:nth-child(2) {
+  background: #b45309;
+}
+
+.approval-actions button:nth-child(3) {
+  background: #475569;
+}
+
+.approval-actions button:nth-child(4) {
+  background: #7c2d12;
+}
+
+.approval-actions button:nth-child(5) {
+  background: #1d4ed8;
+}
+
+@media (max-width: 1024px) {
+  .workspace-summary-grid,
+  .approval-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .workspace-summary-grid,
+  .approval-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
