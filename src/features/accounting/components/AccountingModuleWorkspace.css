@@ -158,6 +158,7 @@
 .workspace-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .workspace-table th,
@@ -165,6 +166,7 @@
   padding: 12px;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: top;
+  min-width: 120px;
 }
 
 .workspace-table th {
@@ -181,11 +183,46 @@
 .summary-box input,
 .summary-box textarea {
   width: 100%;
+  min-width: 120px;
+  box-sizing: border-box;
   border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 10px 12px;
   background: #fff;
   color: #0f172a;
+}
+
+.table-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 44px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.workspace-table td:nth-child(1) input,
+.workspace-table td:nth-child(2) input,
+.workspace-table td:nth-child(3) input,
+.workspace-table td:nth-child(4) input,
+.workspace-table td:nth-child(5) input,
+.workspace-table td:nth-child(6) input,
+.workspace-table td:nth-child(7) input,
+.workspace-table td:nth-child(8) input,
+.workspace-table td:nth-child(9) input,
+.workspace-table td:nth-child(10) input,
+.workspace-table td:nth-child(11) input,
+.workspace-table td:nth-child(1) textarea,
+.workspace-table td:nth-child(2) textarea,
+.workspace-table td:nth-child(3) textarea,
+.workspace-table td:nth-child(4) textarea,
+.workspace-table td:nth-child(5) textarea,
+.workspace-table td:nth-child(6) textarea,
+.workspace-table td:nth-child(7) textarea,
+.workspace-table td:nth-child(8) textarea,
+.workspace-table td:nth-child(9) textarea,
+.workspace-table td:nth-child(10) textarea,
+.workspace-table td:nth-child(11) textarea {
+  min-width: 140px;
 }
 
 .workspace-table input:disabled,

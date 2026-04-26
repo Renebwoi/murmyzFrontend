@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { TextareaHTMLAttributes } from "react";
 import type { UserRole } from "../../../types/auth";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../constants/api";
@@ -178,21 +179,50 @@ function isLocked(state: RecordState) {
   return state !== "draft";
 }
 
+interface AutoGrowTextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
+
+function AutoGrowTextarea({
+  className = "",
+  value,
+  onChange,
+  ...props
+}: AutoGrowTextareaProps) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    const element = textareaRef.current;
+    if (!element) return;
+
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight}px`;
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className={`table-textarea ${className}`.trim()}
+      value={value}
+      onChange={onChange}
+      rows={1}
+      {...props}
+    />
+  );
+}
+
 export function AccountingModuleWorkspace({
   module,
   role,
 }: AccountingModuleWorkspaceProps) {
   const navigate = useNavigate();
-  const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>(
-    [
-      ...createHistoricApprovalRecords(MOCK_APPROVAL_RECORDS),
-      ...MOCK_APPROVAL_RECORDS.map((record) => ({
-        ...record,
-        id: `${record.module}-approval-${todayKey()}`,
-        date: todayKey(),
-      })),
-    ],
-  );
+  const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>([
+    ...createHistoricApprovalRecords(MOCK_APPROVAL_RECORDS),
+    ...MOCK_APPROVAL_RECORDS.map((record) => ({
+      ...record,
+      id: `${record.module}-approval-${todayKey()}`,
+      date: todayKey(),
+    })),
+  ]);
   const [vipRecords, setVipRecords] = useState<DepartmentModuleState[]>([
     createHistoricDepartmentRecord(MOCK_VIP_RECORD),
     {
@@ -838,7 +868,7 @@ export function AccountingModuleWorkspace({
               {totals.rows.map((row, index) => (
                 <tr key={row.id}>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.drinkName}
                       disabled={!editable}
                       onChange={(e) =>
@@ -1187,7 +1217,7 @@ export function AccountingModuleWorkspace({
               {receptionRecord.rows.map((row, index) => (
                 <tr key={row.id}>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.customerName}
                       disabled={!editable}
                       onChange={(e) =>
@@ -1235,7 +1265,7 @@ export function AccountingModuleWorkspace({
                     />
                   </td>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.room}
                       disabled={!editable}
                       onChange={(e) =>
@@ -1244,7 +1274,7 @@ export function AccountingModuleWorkspace({
                     />
                   </td>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.idNumber}
                       disabled={!editable}
                       onChange={(e) =>
@@ -1291,7 +1321,7 @@ export function AccountingModuleWorkspace({
                     />
                   </td>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.duration}
                       disabled={!editable}
                       onChange={(e) =>
@@ -1458,7 +1488,7 @@ export function AccountingModuleWorkspace({
               {inventoryRecord.purchases.map((row, index) => (
                 <tr key={row.id}>
                   <td>
-                    <input
+                    <AutoGrowTextarea
                       value={row.itemName}
                       disabled={!editable}
                       onChange={(e) =>
