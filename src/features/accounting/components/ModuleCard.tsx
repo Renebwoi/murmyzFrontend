@@ -1,6 +1,6 @@
-import type { AccountingModule } from '../types';
-import { MODULE_LABELS } from '../permissions';
-import './ModuleCard.css';
+import type { AccountingModule } from "../types";
+import { MODULE_LABELS } from "../permissions";
+import "./ModuleCard.css";
 
 interface ModuleCardProps {
   module: AccountingModule;
@@ -10,14 +10,26 @@ interface ModuleCardProps {
   subtitle?: string;
 }
 
-export function ModuleCard({ module, description, onOpen, allowed, subtitle }: ModuleCardProps) {
+export function ModuleCard({
+  module,
+  description,
+  onOpen,
+  allowed,
+  subtitle,
+}: ModuleCardProps) {
   return (
-    <button className={`module-card ${allowed ? 'allowed' : 'locked'}`} onClick={onOpen} disabled={!allowed}>
+    <button
+      className={`module-card ${allowed ? "allowed" : "locked"}`}
+      onClick={onOpen}
+      disabled={!allowed}
+    >
       <span className="module-card-kicker">{MODULE_LABELS[module]}</span>
       <h3>{MODULE_LABELS[module]}</h3>
       <p>{description}</p>
       {subtitle ? <small>{subtitle}</small> : null}
-      <span className="module-card-cta">{allowed ? 'Open module' : 'Locked by role'}</span>
+      <span className="module-card-cta">
+        {allowed ? "Open module" : "Locked by role"}
+      </span>
     </button>
   );
 }

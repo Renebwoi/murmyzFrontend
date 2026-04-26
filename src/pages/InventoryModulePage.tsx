@@ -1,5 +1,5 @@
-import { useAuth } from '../auth/AuthProvider';
-import { InventoryModulePage as FeatureInventoryModulePage } from '../features/accounting/pages/InventoryModulePage';
+import { useAuth } from "../auth/AuthProvider";
+import { InventoryModulePage as FeatureInventoryModulePage } from "../features/accounting/pages/InventoryModulePage";
 
 export function InventoryModulePage() {
   const { user } = useAuth();

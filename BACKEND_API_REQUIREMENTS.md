@@ -5,6 +5,7 @@ The frontend has been built with the following authentication and admin panel sy
 ## Environment Setup
 
 Create the following environment variable in your backend:
+
 ```
 FRONTEND_URL=http://localhost:5173
 ```
@@ -18,9 +19,11 @@ Configure CORS to allow requests from the frontend domain.
 ## Authentication System
 
 ### 1. Admin Login Endpoint
+
 **Route:** `POST /api/auth/admin/login`
 
 **Request Body:**
+
 ```json
 {
   "username": "string",
@@ -30,6 +33,7 @@ Configure CORS to allow requests from the frontend domain.
 ```
 
 **Response (Success - 200):**
+
 ```json
 {
   "token": "jwt_token_string",
@@ -44,6 +48,7 @@ Configure CORS to allow requests from the frontend domain.
 ```
 
 **Response (Error - 401/400):**
+
 ```json
 {
   "message": "Invalid credentials|Access code incorrect|User not found"
@@ -51,6 +56,7 @@ Configure CORS to allow requests from the frontend domain.
 ```
 
 **Requirements:**
+
 - All three fields (username, password, accessCode) are REQUIRED
 - Return JWT token that will be stored in localStorage (key: `murmyz_auth_token`)
 - Return user object with role only being "admin" or "worker"
@@ -60,14 +66,17 @@ Configure CORS to allow requests from the frontend domain.
 ---
 
 ### 2. Token Verification Endpoint
+
 **Route:** `GET /api/auth/admin/verify`
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 **Response (Success - 200):**
+
 ```json
 {
   "user": {
@@ -81,6 +90,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 **Response (Error - 401):**
+
 ```json
 {
   "message": "Unauthorized|Token expired"
@@ -88,6 +98,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 **Requirements:**
+
 - Used on app startup to verify stored tokens
 - Should validate JWT integrity and expiration
 - Clear response for expired tokens (return 401)
@@ -95,14 +106,17 @@ Authorization: Bearer <jwt_token>
 ---
 
 ### 3. Logout Endpoint
+
 **Route:** `POST /api/auth/admin/logout`
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 **Response (Success - 200):**
+
 ```json
 {
   "message": "Logged out successfully"
@@ -110,6 +124,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 **Requirements:**
+
 - Invalidate the JWT token on the backend (blacklist or session management)
 - Can be a simple endpoint, frontend also clears localStorage
 
@@ -118,10 +133,12 @@ Authorization: Bearer <jwt_token>
 ## User Roles & Permissions
 
 ### Role Definitions:
+
 - **admin**: Full access to all admin features including accounting
 - **worker**: Access to accounting features (can view/manage accounting data)
 
 ### Protected Routes:
+
 - `/admin` (dashboard): Requires authentication (both admin and worker)
 - `/admin/accounting`: Requires authentication with role: admin OR worker
 
@@ -132,6 +149,7 @@ Route guards will prevent unauthorized access on the frontend, but backend shoul
 ## User Management (Future Implementation)
 
 The frontend references these user fields:
+
 - `id`: Unique user identifier
 - `username`: Login username
 - `email`: User email address
@@ -147,6 +165,7 @@ Store and validate the `accessCode` separately from the password. This is an add
 The frontend has a placeholder accounting page that expects:
 
 **Future Endpoint Pattern:**
+
 ```
 GET /api/accounting/transactions
 POST /api/accounting/transactions
@@ -155,6 +174,7 @@ DELETE /api/accounting/transactions/:id
 ```
 
 Current transaction structure (for reference):
+
 ```typescript
 {
   id: string,
@@ -172,6 +192,7 @@ Current transaction structure (for reference):
 ## Error Handling
 
 All endpoints should follow this error response format:
+
 ```json
 {
   "message": "Detailed error message",
@@ -181,6 +202,7 @@ All endpoints should follow this error response format:
 ```
 
 Common HTTP Status Codes:
+
 - `200`: Success
 - `400`: Bad request (validation error)
 - `401`: Unauthorized (invalid credentials, expired token)
@@ -205,13 +227,14 @@ Common HTTP Status Codes:
 ## Frontend Constants to Sync
 
 The frontend uses these constants (from `src/constants/api.ts`):
+
 ```typescript
-API_BASE_URL: http://localhost:5000/api
-AUTH_ENDPOINTS = {
-  LOGIN: /api/auth/admin/login,
-  LOGOUT: /api/auth/admin/logout,
-  VERIFY: /api/auth/admin/verify,
-}
+API_BASE_URL: //localhost:5000/api
+http: AUTH_ENDPOINTS = {
+  LOGIN: /api/ahtu / admin / login,
+  LOGOUT: /api/ahtu / admin / logout,
+  VERIFY: /api/ahtu / admin / verify,
+};
 ```
 
 Update `VITE_API_URL` in `.env` file if your backend URL differs.
@@ -221,6 +244,7 @@ Update `VITE_API_URL` in `.env` file if your backend URL differs.
 ## Testing the Integration
 
 1. Create test admin user:
+
    ```json
    {
      "username": "admin",
@@ -232,6 +256,7 @@ Update `VITE_API_URL` in `.env` file if your backend URL differs.
    ```
 
 2. Create test worker user:
+
    ```json
    {
      "username": "worker",

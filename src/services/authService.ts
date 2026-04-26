@@ -1,25 +1,25 @@
-import type { AdminUser, LoginCredentials } from '../types/auth';
-import { AUTH_ENDPOINTS, STORAGE_KEYS } from '../constants/api';
+import type { AdminUser, LoginCredentials } from "../types/auth";
+import { AUTH_ENDPOINTS, STORAGE_KEYS } from "../constants/api";
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AdminUser> {
     try {
       const response = await fetch(AUTH_ENDPOINTS.LOGIN, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify(credentials),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+        throw new Error(error.message || "Login failed");
       }
 
       const data = await response.json();
-      
+
       // Store auth token and user data
       if (data.token) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token);
@@ -38,15 +38,15 @@ class AuthService {
       const token = this.getToken();
       if (token) {
         await fetch(AUTH_ENDPOINTS.LOGOUT, {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          credentials: 'include',
+          credentials: "include",
         });
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       this.clearStorage();
     }
@@ -58,11 +58,11 @@ class AuthService {
       if (!token) return null;
 
       const response = await fetch(AUTH_ENDPOINTS.VERIFY, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -75,7 +75,7 @@ class AuthService {
       localStorage.setItem(STORAGE_KEYS.ROLE, data.user.role);
       return data.user;
     } catch (error) {
-      console.error('Token verification error:', error);
+      console.error("Token verification error:", error);
       this.clearStorage();
       return null;
     }

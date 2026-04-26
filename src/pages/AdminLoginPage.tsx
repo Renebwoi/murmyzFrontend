@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider';
-import type { LoginCredentials } from '../types/auth';
-import { ROUTES } from '../constants/api';
-import './AdminLoginPage.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
+import type { LoginCredentials } from "../types/auth";
+import { ROUTES } from "../constants/api";
+import "./AdminLoginPage.css";
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuth();
   const [formData, setFormData] = useState<LoginCredentials>({
-    username: '',
-    password: '',
-    accessCode: '',
+    username: "",
+    password: "",
+    accessCode: "",
   });
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -29,7 +29,7 @@ export function AdminLoginPage() {
     setFormError(null);
 
     if (!formData.username || !formData.password || !formData.accessCode) {
-      setFormError('All fields are required');
+      setFormError("All fields are required");
       return;
     }
 
@@ -37,7 +37,9 @@ export function AdminLoginPage() {
       await login(formData);
       navigate(ROUTES.ADMIN_DASHBOARD);
     } catch (err) {
-      setFormError(error || (err instanceof Error ? err.message : 'Login failed'));
+      setFormError(
+        error || (err instanceof Error ? err.message : "Login failed"),
+      );
     }
   };
 
@@ -93,7 +95,7 @@ export function AdminLoginPage() {
           {formError && <div className="error-message">{formError}</div>}
 
           <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Log In'}
+            {isLoading ? "Logging in..." : "Log In"}
           </button>
         </form>
 

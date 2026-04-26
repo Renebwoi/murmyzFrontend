@@ -1,5 +1,5 @@
-import { useAuth } from '../auth/AuthProvider';
-import { ReceptionModulePage as FeatureReceptionModulePage } from '../features/accounting/pages/ReceptionModulePage';
+import { useAuth } from "../auth/AuthProvider";
+import { ReceptionModulePage as FeatureReceptionModulePage } from "../features/accounting/pages/ReceptionModulePage";
 
 export function ReceptionModulePage() {
   const { user } = useAuth();

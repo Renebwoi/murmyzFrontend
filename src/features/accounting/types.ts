@@ -1,17 +1,29 @@
-import type { UserRole } from '../../types/auth';
+import type { UserRole } from "../../types/auth";
 
-export type AccountingModule = 'vip' | 'bar' | 'reception' | 'inventory' | 'approval';
-export type RecordState = 'draft' | 'submitted' | 'reviewed' | 'approved' | 'partially-resolved' | 'fully-resolved';
+export type AccountingModule =
+  | "vip"
+  | "bar"
+  | "reception"
+  | "inventory"
+  | "approval"
+  | "debts";
+export type RecordState =
+  | "draft"
+  | "submitted"
+  | "reviewed"
+  | "approved"
+  | "partially-resolved"
+  | "fully-resolved";
 export type AccountingAction =
-  | 'create'
-  | 'edit'
-  | 'submit'
-  | 'flag-inconsistency'
-  | 'approve'
-  | 'reject'
-  | 'reopen'
-  | 'confirm-cash'
-  | 'sign-off';
+  | "create"
+  | "edit"
+  | "submit"
+  | "flag-inconsistency"
+  | "approve"
+  | "reject"
+  | "reopen"
+  | "confirm-cash"
+  | "sign-off";
 
 export interface DepartmentRow {
   id: string;
@@ -30,7 +42,7 @@ export interface DepartmentRow {
 export interface ReceptionRow {
   id: string;
   customerName: string;
-  sex: 'Male' | 'Female' | 'Other';
+  sex: "Male" | "Female" | "Other";
   timeIn: string;
   timeOut: string;
   room: string;
@@ -50,7 +62,7 @@ export interface InventoryRow {
   quantity: number;
   unitPrice: number;
   totalCost: number;
-  department: 'Store' | 'Bar' | 'VIP';
+  department: "Store" | "Bar" | "VIP";
   inconsistency?: string;
 }
 
@@ -59,7 +71,7 @@ export interface ApprovalRecord {
   module: AccountingModule;
   title: string;
   status: RecordState;
-  debtStatus: 'none' | 'partial' | 'full';
+  debtStatus: "none" | "partial" | "full";
   cashAtHand: number;
   submittedBy: string;
   notes: string;
@@ -67,7 +79,7 @@ export interface ApprovalRecord {
 
 export interface DepartmentModuleState {
   id: string;
-  module: 'vip' | 'bar';
+  module: "vip" | "bar";
   date: string;
   status: RecordState;
   rows: DepartmentRow[];
@@ -81,7 +93,7 @@ export interface DepartmentModuleState {
 
 export interface ReceptionModuleState {
   id: string;
-  module: 'reception';
+  module: "reception";
   date: string;
   status: RecordState;
   rows: ReceptionRow[];
@@ -91,7 +103,7 @@ export interface ReceptionModuleState {
 
 export interface InventoryModuleState {
   id: string;
-  module: 'inventory';
+  module: "inventory";
   date: string;
   status: RecordState;
   purchases: InventoryRow[];

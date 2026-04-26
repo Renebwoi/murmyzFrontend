@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from './constants/api';
-import './App.css';
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "./constants/api";
+import "./App.css";
 
 function App() {
   const navigate = useNavigate();
@@ -12,10 +12,19 @@ function App() {
         <div className="header-container">
           <h1 className="logo">🏨 Murmyz Hotel</h1>
           <nav className="nav-links">
-            <button className="nav-link" onClick={() => navigate('/')}>Home</button>
-            <button className="nav-link" onClick={() => navigate('/')}>Rooms</button>
-            <button className="nav-link" onClick={() => navigate('/')}>Contact</button>
-            <button className="nav-link admin-link" onClick={() => navigate(ROUTES.ADMIN_LOGIN)}>
+            <button className="nav-link" onClick={() => navigate("/")}>
+              Home
+            </button>
+            <button className="nav-link" onClick={() => navigate("/")}>
+              Rooms
+            </button>
+            <button className="nav-link" onClick={() => navigate("/")}>
+              Contact
+            </button>
+            <button
+              className="nav-link admin-link"
+              onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
+            >
               Staff Login
             </button>
           </nav>
@@ -66,18 +75,40 @@ function App() {
         <div className="footer-content">
           <div className="footer-section">
             <h4>About</h4>
-            <p>Murmyz Hotel offers premium accommodation and services for travelers and guests.</p>
+            <p>
+              Murmyz Hotel offers premium accommodation and services for
+              travelers and guests.
+            </p>
           </div>
           <div className="footer-section">
             <h4>Contact</h4>
-            <p>Email: info@murmyz.com<br />Phone: +1 (555) 123-4567</p>
+            <p>
+              Email: info@murmyz.com
+              <br />
+              Phone: +1 (555) 123-4567
+            </p>
           </div>
           <div className="footer-section">
             <h4>Quick Links</h4>
             <ul>
-              <li><button className="footer-link" onClick={() => navigate('/')}>Home</button></li>
-              <li><button className="footer-link" onClick={() => navigate('/')}>Rooms</button></li>
-              <li><button className="footer-link" onClick={() => navigate(ROUTES.ADMIN_LOGIN)}>Staff</button></li>
+              <li>
+                <button className="footer-link" onClick={() => navigate("/")}>
+                  Home
+                </button>
+              </li>
+              <li>
+                <button className="footer-link" onClick={() => navigate("/")}>
+                  Rooms
+                </button>
+              </li>
+              <li>
+                <button
+                  className="footer-link"
+                  onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
+                >
+                  Staff
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -86,7 +117,7 @@ function App() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 export default App;

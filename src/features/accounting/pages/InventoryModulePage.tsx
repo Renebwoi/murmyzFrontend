@@ -1,5 +1,5 @@
-import type { UserRole } from '../../../types/auth';
-import { AccountingModuleWorkspace } from '../components/AccountingModuleWorkspace';
+import type { UserRole } from "../../../types/auth";
+import { AccountingModuleWorkspace } from "../components/AccountingModuleWorkspace";
 
 interface InventoryModulePageProps {
   role: UserRole;

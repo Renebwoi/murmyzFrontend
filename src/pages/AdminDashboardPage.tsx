@@ -1,1 +1,4 @@
-export { AccountingDashboardPage as default, AccountingDashboardPage } from './AccountingDashboardPage';
+export {
+  AccountingDashboardPage as default,
+  AccountingDashboardPage,
+} from "./AccountingDashboardPage";

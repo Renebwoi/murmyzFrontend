@@ -1,0 +1,203 @@
+.debt-ledger-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debt-ledger-hero {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.debt-ledger-hero h2 {
+  margin: 0 0 8px;
+}
+
+.debt-ledger-hero p {
+  margin: 0;
+  color: #475569;
+}
+
+.debt-ledger-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.debt-ledger-summary > div {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.debt-ledger-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.debt-ledger-summary strong {
+  font-size: 20px;
+  color: #0f172a;
+}
+
+.debt-ledger-toolbar {
+  display: flex;
+  gap: 12px;
+}
+
+.debt-ledger-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.debt-ledger-form {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.debt-ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.debt-ledger-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.debt-ledger-form input,
+.debt-ledger-form select,
+.debt-ledger-form textarea,
+.debt-ledger-toolbar input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.debt-ledger-form button {
+  width: fit-content;
+  border: none;
+  background: #7c3aed;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.form-error {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.debt-ledger-table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.debt-ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.debt-ledger-table th,
+.debt-ledger-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px;
+  text-align: left;
+}
+
+.debt-ledger-table th {
+  background: #f8fafc;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.ledger-status {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pending-admin {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.status-accepted-admin {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-rejected-admin {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-paid {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.ledger-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ledger-actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #0f766e;
+  color: #fff;
+}
+
+.ledger-actions button:nth-child(2) {
+  background: #b45309;
+}
+
+.ledger-actions button:nth-child(3) {
+  background: #1d4ed8;
+}
+
+.ledger-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .debt-ledger-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .debt-ledger-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,5 @@
-import { useAuth } from '../auth/AuthProvider';
-import { DepartmentModulePage } from '../features/accounting/pages/DepartmentModulePage';
+import { useAuth } from "../auth/AuthProvider";
+import { DepartmentModulePage } from "../features/accounting/pages/DepartmentModulePage";
 
 export function BarModulePage() {
   const { user } = useAuth();

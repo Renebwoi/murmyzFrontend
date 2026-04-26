@@ -1,19 +1,29 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider';
-import type { UserRole } from '../types/auth';
-import { ROUTES } from '../constants/api';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
+import type { UserRole } from "../types/auth";
+import { ROUTES } from "../constants/api";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRoles?: UserRole[];
 }
 
-export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRoles,
+}: ProtectedRouteProps) {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <p>Loading...</p>
       </div>
     );
@@ -25,7 +35,14 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
 
   if (requiredRoles && !requiredRoles.includes(user.role)) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <p>Unauthorized: You don't have permission to access this page</p>
       </div>
     );

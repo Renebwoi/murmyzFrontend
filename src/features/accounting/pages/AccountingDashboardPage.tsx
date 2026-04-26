@@ -1,8 +1,12 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../auth/AuthProvider';
-import { ModuleCard } from '../components/ModuleCard';
-import { MODULE_OPTIONS, getAccessibleModules, getRoleLabel } from '../permissions';
-import './AccountingDashboardPage.css';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../auth/AuthProvider";
+import { ModuleCard } from "../components/ModuleCard";
+import {
+  MODULE_OPTIONS,
+  getAccessibleModules,
+  getRoleLabel,
+} from "../permissions";
+import "./AccountingDashboardPage.css";
 
 export function AccountingDashboardPage() {
   const { user } = useAuth();
@@ -19,12 +23,17 @@ export function AccountingDashboardPage() {
         <div>
           <p className="eyebrow">Accounting dashboard</p>
           <h2>{getRoleLabel(user.role)} workspace</h2>
-          <p>Role-based access is enforced strictly. Only permitted modules and actions are shown.</p>
+          <p>
+            Role-based access is enforced strictly. Only permitted modules and
+            actions are shown.
+          </p>
         </div>
         <div className="dashboard-stamp">
           <span>Role</span>
           <strong>{getRoleLabel(user.role)}</strong>
-          <small>{moduleCount} accessible module{moduleCount === 1 ? '' : 's'}</small>
+          <small>
+            {moduleCount} accessible module{moduleCount === 1 ? "" : "s"}
+          </small>
         </div>
       </div>
 

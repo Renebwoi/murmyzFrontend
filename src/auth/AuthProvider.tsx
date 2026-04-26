@@ -1,7 +1,11 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import type { AuthState, LoginCredentials, AuthContextType } from '../types/auth';
-import { authService } from '../services/authService';
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import type {
+  AuthState,
+  LoginCredentials,
+  AuthContextType,
+} from "../types/auth";
+import { authService } from "../services/authService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -47,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthState((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'Failed to verify authentication',
+          error: "Failed to verify authentication",
         }));
       }
     };
@@ -71,7 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -104,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
