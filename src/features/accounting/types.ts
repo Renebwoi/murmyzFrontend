@@ -68,6 +68,7 @@ export interface InventoryRow {
 
 export interface ApprovalRecord {
   id: string;
+  date: string;
   module: AccountingModule;
   title: string;
   status: RecordState;

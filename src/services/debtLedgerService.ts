@@ -1,13 +1,17 @@
-import type { UserRole } from '../types/auth';
-import type { AccountingModule } from '../features/accounting/types';
-import { API_BASE_URL } from '../constants/api';
-import { authService } from './authService';
+import type { UserRole } from "../types/auth";
+import type { AccountingModule } from "../features/accounting/types";
+import { API_BASE_URL } from "../constants/api";
+import { authService } from "./authService";
 
-export type DebtLedgerStatus = 'pending-admin' | 'accepted-admin' | 'rejected-admin' | 'paid';
+export type DebtLedgerStatus =
+  | "pending-admin"
+  | "accepted-admin"
+  | "rejected-admin"
+  | "paid";
 
 export interface DebtLedgerEntry {
   id: string;
-  module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>;
+  module: Extract<AccountingModule, "vip" | "bar" | "reception">;
   date: string;
   amount: number;
   explanation: string;
@@ -21,14 +25,14 @@ export interface DebtLedgerEntry {
 }
 
 interface CreateDebtEntryInput {
-  module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>;
+  module: Extract<AccountingModule, "vip" | "bar" | "reception">;
   date: string;
   amount: number;
   explanation: string;
   submittedBy: string;
 }
 
-const UPDATE_EVENT = 'murmyz:debt-ledger-updated';
+const UPDATE_EVENT = "murmyz:debt-ledger-updated";
 
 const DEBT_ENDPOINTS = {
   BASE: `${API_BASE_URL}/accounting/debts`,
@@ -46,9 +50,16 @@ function broadcastLedgerUpdate() {
 
 function normalizeEntries(payload: unknown): DebtLedgerEntry[] {
   if (!payload) return [];
-  const root = payload as { data?: { entries?: DebtLedgerEntry[] } | DebtLedgerEntry[]; entries?: DebtLedgerEntry[] };
-  const fromDataEntries = (root.data as { entries?: DebtLedgerEntry[] } | undefined)?.entries;
-  const fromDataArray = Array.isArray(root.data) ? (root.data as DebtLedgerEntry[]) : undefined;
+  const root = payload as {
+    data?: { entries?: DebtLedgerEntry[] } | DebtLedgerEntry[];
+    entries?: DebtLedgerEntry[];
+  };
+  const fromDataEntries = (
+    root.data as { entries?: DebtLedgerEntry[] } | undefined
+  )?.entries;
+  const fromDataArray = Array.isArray(root.data)
+    ? (root.data as DebtLedgerEntry[])
+    : undefined;
   const fromRootEntries = root.entries;
   const entries = fromDataEntries ?? fromDataArray ?? fromRootEntries;
   if (!Array.isArray(entries)) return [];
@@ -56,16 +67,22 @@ function normalizeEntries(payload: unknown): DebtLedgerEntry[] {
   return entries.map((raw) => {
     const item = raw as unknown as Record<string, unknown>;
     return {
-      id: String(item.id ?? ''),
-      module: (item.module as DebtLedgerEntry['module']) ?? 'vip',
-      date: String(item.date ?? item.businessDate ?? ''),
+      id: String(item.id ?? ""),
+      module: (item.module as DebtLedgerEntry["module"]) ?? "vip",
+      date: String(item.date ?? item.businessDate ?? ""),
       amount: Number(item.amount ?? 0),
-      explanation: String(item.explanation ?? ''),
-      status: (item.status as DebtLedgerEntry['status']) ?? 'pending-admin',
-      submittedBy: String(item.submittedBy ?? item.submittedByUsername ?? ''),
-      submittedAt: String(item.submittedAt ?? item.createdAt ?? new Date().toISOString()),
-      adminReviewedBy: item.adminReviewedBy ? String(item.adminReviewedBy) : undefined,
-      adminReviewedAt: item.adminReviewedAt ? String(item.adminReviewedAt) : undefined,
+      explanation: String(item.explanation ?? ""),
+      status: (item.status as DebtLedgerEntry["status"]) ?? "pending-admin",
+      submittedBy: String(item.submittedBy ?? item.submittedByUsername ?? ""),
+      submittedAt: String(
+        item.submittedAt ?? item.createdAt ?? new Date().toISOString(),
+      ),
+      adminReviewedBy: item.adminReviewedBy
+        ? String(item.adminReviewedBy)
+        : undefined,
+      adminReviewedAt: item.adminReviewedAt
+        ? String(item.adminReviewedAt)
+        : undefined,
       bossPaidBy: item.bossPaidBy ? String(item.bossPaidBy) : undefined,
       bossPaidAt: item.bossPaidAt ? String(item.bossPaidAt) : undefined,
     };
@@ -77,11 +94,13 @@ function writeCache(entries: DebtLedgerEntry[]) {
   broadcastLedgerUpdate();
 }
 
-function roleModules(role: UserRole): Array<Extract<AccountingModule, 'vip' | 'bar' | 'reception'>> {
-  if (role === 'vip-master') return ['vip'];
-  if (role === 'bar-master') return ['bar'];
-  if (role === 'receptionist') return ['reception'];
-  return ['vip', 'bar', 'reception'];
+function roleModules(
+  role: UserRole,
+): Array<Extract<AccountingModule, "vip" | "bar" | "reception">> {
+  if (role === "vip-master") return ["vip"];
+  if (role === "bar-master") return ["bar"];
+  if (role === "receptionist") return ["reception"];
+  return ["vip", "bar", "reception"];
 }
 
 class DebtLedgerService {
@@ -89,17 +108,19 @@ class DebtLedgerService {
     const token = authService.getToken();
     const response = await fetch(url, {
       ...init,
-      credentials: 'include',
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(init.headers || {}),
       },
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' }));
-      throw new Error(error.message || 'Request failed');
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Request failed" }));
+      throw new Error(error.message || "Request failed");
     }
 
     return response.json() as Promise<T>;
@@ -109,14 +130,21 @@ class DebtLedgerService {
     return debtEntriesCache;
   }
 
-  async refresh(params?: { date?: string; module?: 'vip' | 'bar' | 'reception'; status?: DebtLedgerStatus }) {
+  async refresh(params?: {
+    date?: string;
+    module?: "vip" | "bar" | "reception";
+    status?: DebtLedgerStatus;
+  }) {
     const query = new URLSearchParams();
-    if (params?.date) query.set('businessDate', params.date);
-    if (params?.module) query.set('module', params.module);
-    if (params?.status) query.set('status', params.status);
+    if (params?.date) query.set("businessDate", params.date);
+    if (params?.module) query.set("module", params.module);
+    if (params?.status) query.set("status", params.status);
 
     const queryString = query.toString();
-    const payload = await this.request<unknown>(`${DEBT_ENDPOINTS.BASE}${queryString ? `?${queryString}` : ''}`, { method: 'GET' });
+    const payload = await this.request<unknown>(
+      `${DEBT_ENDPOINTS.BASE}${queryString ? `?${queryString}` : ""}`,
+      { method: "GET" },
+    );
     const entries = normalizeEntries(payload);
 
     if (params?.date || params?.module || params?.status) {
@@ -138,23 +166,36 @@ class DebtLedgerService {
     return debtEntriesCache.filter((entry) => entry.date === date);
   }
 
-  getEntriesForModuleAndDate(module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>, date: string) {
-    return debtEntriesCache.filter((entry) => entry.module === module && entry.date === date);
+  getEntriesForModuleAndDate(
+    module: Extract<AccountingModule, "vip" | "bar" | "reception">,
+    date: string,
+  ) {
+    return debtEntriesCache.filter(
+      (entry) => entry.module === module && entry.date === date,
+    );
   }
 
-  getAcceptedUnpaidAmount(module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>, date: string) {
+  getAcceptedUnpaidAmount(
+    module: Extract<AccountingModule, "vip" | "bar" | "reception">,
+    date: string,
+  ) {
     return this.getEntriesForModuleAndDate(module, date)
-      .filter((entry) => entry.status === 'accepted-admin')
+      .filter((entry) => entry.status === "accepted-admin")
       .reduce((total, entry) => total + entry.amount, 0);
   }
 
-  hasAcceptedUnpaidDebt(module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>, date: string) {
-    return this.getEntriesForModuleAndDate(module, date).some((entry) => entry.status === 'accepted-admin');
+  hasAcceptedUnpaidDebt(
+    module: Extract<AccountingModule, "vip" | "bar" | "reception">,
+    date: string,
+  ) {
+    return this.getEntriesForModuleAndDate(module, date).some(
+      (entry) => entry.status === "accepted-admin",
+    );
   }
 
   async createEntry(input: CreateDebtEntryInput) {
     await this.request(DEBT_ENDPOINTS.BASE, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         module: input.module,
         businessDate: input.date,
@@ -169,7 +210,7 @@ class DebtLedgerService {
 
   async approveEntry(id: string, adminUsername: string) {
     await this.request(DEBT_ENDPOINTS.ACCEPT(id), {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ actor: adminUsername }),
     });
 
@@ -178,7 +219,7 @@ class DebtLedgerService {
 
   async rejectEntry(id: string, adminUsername: string) {
     await this.request(DEBT_ENDPOINTS.REJECT(id), {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ actor: adminUsername }),
     });
 
@@ -187,16 +228,22 @@ class DebtLedgerService {
 
   async markPaid(id: string, bossUsername: string) {
     await this.request(DEBT_ENDPOINTS.MARK_PAID(id), {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ actor: bossUsername }),
     });
 
     await this.refresh();
   }
 
-  async fetchSummary(module: Extract<AccountingModule, 'vip' | 'bar' | 'reception'>, date: string) {
+  async fetchSummary(
+    module: Extract<AccountingModule, "vip" | "bar" | "reception">,
+    date: string,
+  ) {
     const query = new URLSearchParams({ module, businessDate: date });
-    return this.request<unknown>(`${DEBT_ENDPOINTS.SUMMARY}?${query.toString()}`, { method: 'GET' });
+    return this.request<unknown>(
+      `${DEBT_ENDPOINTS.SUMMARY}?${query.toString()}`,
+      { method: "GET" },
+    );
   }
 
   getRoleModuleOptions(role: UserRole) {

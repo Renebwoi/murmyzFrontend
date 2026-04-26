@@ -163,6 +163,7 @@ export const MOCK_INVENTORY_RECORD: InventoryModuleState = {
 export const MOCK_APPROVAL_RECORDS: ApprovalRecord[] = [
   {
     id: "app-001",
+    date: new Date().toISOString().slice(0, 10),
     module: "vip",
     title: "VIP Daily Record",
     status: "submitted",
@@ -173,6 +174,7 @@ export const MOCK_APPROVAL_RECORDS: ApprovalRecord[] = [
   },
   {
     id: "app-002",
+    date: new Date().toISOString().slice(0, 10),
     module: "bar",
     title: "Bar Daily Record",
     status: "reviewed",
@@ -183,6 +185,7 @@ export const MOCK_APPROVAL_RECORDS: ApprovalRecord[] = [
   },
   {
     id: "app-003",
+    date: new Date().toISOString().slice(0, 10),
     module: "reception",
     title: "Reception Lodging Record",
     status: "approved",
