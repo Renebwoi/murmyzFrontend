@@ -11,13 +11,6 @@ import {
   MODULE_OPTIONS,
 } from "../permissions";
 import { accountingService } from "../../../services/accountingService";
-import {
-  MOCK_APPROVAL_RECORDS,
-  MOCK_BAR_RECORD,
-  MOCK_INVENTORY_RECORD,
-  MOCK_RECEPTION_RECORD,
-  MOCK_VIP_RECORD,
-} from "../mockData";
 import type {
   AccountingModule,
   ApprovalRecord,
@@ -46,62 +39,67 @@ function toDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function shiftDate(dateKey: string, days: number) {
-  const next = new Date(dateKey);
-  next.setDate(next.getDate() + days);
-  return toDateKey(next);
-}
-
 function todayKey() {
   return toDateKey(new Date());
 }
 
-function createHistoricDepartmentRecord(
-  record: DepartmentModuleState,
+function createBlankDepartmentRecord(
+  module: "vip" | "bar",
+  date: string,
 ): DepartmentModuleState {
-  const yesterday = shiftDate(todayKey(), -1);
   return {
-    ...record,
-    id: `${record.module}-${yesterday}`,
-    date: yesterday,
-    status: "submitted",
+    id: `${module}-${date}`,
+    module,
+    date,
+    status: "draft",
+    rows: [createNewDepartmentRow()],
+    transfersSection: 0,
+    pos: 0,
+    bossCollectedCash: 0,
+    debtsExplanation: "",
+    submittedBy: "",
+    warnings: [],
   };
 }
 
-function createHistoricReceptionRecord(
-  record: ReceptionModuleState,
-): ReceptionModuleState {
-  const yesterday = shiftDate(todayKey(), -1);
+function createBlankReceptionRecord(date: string): ReceptionModuleState {
   return {
-    ...record,
-    id: `${record.module}-${yesterday}`,
-    date: yesterday,
-    status: "submitted",
+    id: `reception-${date}`,
+    module: "reception",
+    date,
+    status: "draft",
+    rows: [createNewReceptionRow()],
+    submittedBy: "",
+    warnings: [],
   };
 }
 
-function createHistoricInventoryRecord(
-  record: InventoryModuleState,
-): InventoryModuleState {
-  const yesterday = shiftDate(todayKey(), -1);
+function createBlankInventoryRecord(date: string): InventoryModuleState {
   return {
-    ...record,
-    id: `${record.module}-${yesterday}`,
-    date: yesterday,
-    status: "submitted",
+    id: `inventory-${date}`,
+    module: "inventory",
+    date,
+    status: "draft",
+    purchases: [createNewInventoryRow()],
+    transfersToBar: 0,
+    transfersToVip: 0,
+    flaggedInconsistencies: [],
+    submittedBy: "",
   };
 }
 
-function createHistoricApprovalRecords(
-  records: ApprovalRecord[],
-): ApprovalRecord[] {
-  const yesterday = shiftDate(todayKey(), -1);
-  return records.map((record) => ({
-    ...record,
-    id: `${record.module}-approval-${yesterday}`,
-    date: yesterday,
-    status: "submitted",
-  }));
+function createBlankApprovalRecord(date: string): ApprovalRecord {
+  return {
+    id: `approval-${date}`,
+    date,
+    module: "approval",
+    title: "Approval record",
+    status: "draft",
+    debtStatus: "none",
+    cashAtHand: 0,
+    submittedBy: "",
+    notes: "",
+  };
 }
 
 function createNextDailyApprovalRecords(
@@ -256,54 +254,13 @@ export function AccountingModuleWorkspace({
   role,
 }: AccountingModuleWorkspaceProps) {
   const navigate = useNavigate();
-  const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>([
-    ...createHistoricApprovalRecords(MOCK_APPROVAL_RECORDS),
-    ...MOCK_APPROVAL_RECORDS.map((record) => ({
-      ...record,
-      id: `${record.module}-approval-${todayKey()}`,
-      date: todayKey(),
-    })),
-  ]);
-  const [vipRecords, setVipRecords] = useState<DepartmentModuleState[]>([
-    createHistoricDepartmentRecord(MOCK_VIP_RECORD),
-    {
-      ...MOCK_VIP_RECORD,
-      id: `vip-${todayKey()}`,
-      date: todayKey(),
-      status: "draft",
-    },
-  ]);
-  const [barRecords, setBarRecords] = useState<DepartmentModuleState[]>([
-    createHistoricDepartmentRecord(MOCK_BAR_RECORD),
-    {
-      ...MOCK_BAR_RECORD,
-      id: `bar-${todayKey()}`,
-      date: todayKey(),
-      status: "draft",
-    },
-  ]);
-  const [receptionRecords, setReceptionRecords] = useState<
-    ReceptionModuleState[]
-  >([
-    createHistoricReceptionRecord(MOCK_RECEPTION_RECORD),
-    {
-      ...MOCK_RECEPTION_RECORD,
-      id: `reception-${todayKey()}`,
-      date: todayKey(),
-      status: "draft",
-    },
-  ]);
-  const [inventoryRecords, setInventoryRecords] = useState<
-    InventoryModuleState[]
-  >([
-    createHistoricInventoryRecord(MOCK_INVENTORY_RECORD),
-    {
-      ...MOCK_INVENTORY_RECORD,
-      id: `inventory-${todayKey()}`,
-      date: todayKey(),
-      status: "draft",
-    },
-  ]);
+  // Start with empty arrays; data will be loaded from backend on mount
+  const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>([]);
+  const [vipRecords, setVipRecords] = useState<DepartmentModuleState[]>([]);
+  const [barRecords, setBarRecords] = useState<DepartmentModuleState[]>([]);
+  const [receptionRecords, setReceptionRecords] = useState<ReceptionModuleState[]>([]);
+  const [inventoryRecords, setInventoryRecords] = useState<InventoryModuleState[]>([]);
+  const [isLoadingRecords, setIsLoadingRecords] = useState(true);
   const [selectedVipId, setSelectedVipId] = useState<string>(
     `vip-${todayKey()}`,
   );
@@ -335,6 +292,80 @@ export function AccountingModuleWorkspace({
 
   useEffect(() => {
     void debtLedgerService.refresh();
+  }, []);
+
+  // Load accounting records from backend on component mount
+  useEffect(() => {
+    const loadRecords = async () => {
+      setIsLoadingRecords(true);
+      try {
+        const dateKey = todayKey();
+
+        // Load records for each module
+        const [vipData, barData, receptionData, inventoryData, approvalData] =
+          await Promise.all([
+            accountingService.getModuleRecordByDate("vip", dateKey),
+            accountingService.getModuleRecordByDate("bar", dateKey),
+            accountingService.getModuleRecordByDate("reception", dateKey),
+            accountingService.getModuleRecordByDate("inventory", dateKey),
+            accountingService.getModuleRecordByDate("approval", dateKey),
+          ]);
+
+        // Set records if they exist; otherwise keep empty (user will create new)
+        if (vipData) {
+          const normalized = normalizeDepartmentRecord(
+            vipData,
+            createBlankDepartmentRecord("vip", dateKey),
+          );
+          setVipRecords([normalized]);
+          setSelectedVipId(normalized.id);
+        }
+
+        if (barData) {
+          const normalized = normalizeDepartmentRecord(
+            barData,
+            createBlankDepartmentRecord("bar", dateKey),
+          );
+          setBarRecords([normalized]);
+          setSelectedBarId(normalized.id);
+        }
+
+        if (receptionData) {
+          const normalized = normalizeReceptionRecord(
+            receptionData,
+            createBlankReceptionRecord(dateKey),
+          );
+          setReceptionRecords([normalized]);
+          setSelectedReceptionId(normalized.id);
+        }
+
+        if (inventoryData) {
+          const normalized = normalizeInventoryRecord(
+            inventoryData,
+            createBlankInventoryRecord(dateKey),
+          );
+          setInventoryRecords([normalized]);
+          setSelectedInventoryId(normalized.id);
+        }
+
+        if (approvalData) {
+          setApprovalRecords(
+            Array.isArray(approvalData)
+              ? approvalData
+              : [approvalData],
+          );
+        } else {
+          setApprovalRecords([createBlankApprovalRecord(dateKey)]);
+        }
+      } catch (error) {
+        console.error("Failed to load accounting records:", error);
+        setWarning("Failed to load records from backend. Working with empty state.");
+      } finally {
+        setIsLoadingRecords(false);
+      }
+    };
+
+    loadRecords();
   }, []);
 
   const vipRecord =
@@ -635,9 +666,11 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord =
-        [...vipRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1) ??
-        MOCK_VIP_RECORD;
+      const lastRecord = [...vipRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      if (!lastRecord) {
+        setWarning("No existing VIP record was found to clone from.");
+        return;
+      }
       const next = createNextDailyDepartmentRecord(lastRecord, date);
       setVipRecords((prev) => [...prev, next]);
       setSelectedVipId(next.id);
@@ -654,9 +687,11 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord =
-        [...barRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1) ??
-        MOCK_BAR_RECORD;
+      const lastRecord = [...barRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      if (!lastRecord) {
+        setWarning("No existing Bar record was found to clone from.");
+        return;
+      }
       const next = createNextDailyDepartmentRecord(lastRecord, date);
       setBarRecords((prev) => [...prev, next]);
       setSelectedBarId(next.id);
@@ -673,10 +708,11 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord =
-        [...receptionRecords]
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .at(-1) ?? MOCK_RECEPTION_RECORD;
+      const lastRecord = [...receptionRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      if (!lastRecord) {
+        setWarning("No existing Reception record was found to clone from.");
+        return;
+      }
       const next = createNextDailyReceptionRecord(lastRecord, date);
       setReceptionRecords((prev) => [...prev, next]);
       setSelectedReceptionId(next.id);
@@ -693,10 +729,11 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord =
-        [...inventoryRecords]
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .at(-1) ?? MOCK_INVENTORY_RECORD;
+      const lastRecord = [...inventoryRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      if (!lastRecord) {
+        setWarning("No existing Inventory record was found to clone from.");
+        return;
+      }
       const next = createNextDailyInventoryRecord(lastRecord, date);
       setInventoryRecords((prev) => [...prev, next]);
       setSelectedInventoryId(next.id);
@@ -1993,6 +2030,11 @@ export function AccountingModuleWorkspace({
   return (
     <div className="accounting-workspace">
       {warning ? <div className="workspace-warning">{warning}</div> : null}
+      {isLoadingRecords ? (
+        <div className="workspace-loading">
+          <p>Loading records from backend...</p>
+        </div>
+      ) : null}
       {module === "vip" ? renderDepartment("VIP Module", vipRecord) : null}
       {module === "bar" ? renderDepartment("Bar Module", barRecord) : null}
       {module === "reception" ? renderReception() : null}

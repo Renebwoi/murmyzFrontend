@@ -5,7 +5,8 @@
 }
 
 .workspace-warning,
-.workspace-empty {
+.workspace-empty,
+.workspace-loading {
   background: #fff7ed;
   border: 1px solid #fdba74;
   border-radius: 16px;
@@ -15,6 +16,17 @@
 
 .workspace-empty {
   text-align: center;
+}
+
+.workspace-loading {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.workspace-loading p {
+  margin: 0;
+  font-weight: 700;
 }
 
 .workspace-grid {

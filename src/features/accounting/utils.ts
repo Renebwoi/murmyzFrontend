@@ -5,12 +5,14 @@ import type {
   RecordState,
 } from "./types";
 
+const currencyFormatter = new Intl.NumberFormat("en-NG", {
+  style: "currency",
+  currency: "NGN",
+  maximumFractionDigits: 2,
+});
+
 export function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 2,
-  }).format(value);
+  return currencyFormatter.format(value);
 }
 
 export function toTitle(value: string) {
@@ -62,21 +64,27 @@ export function calculateDepartmentTotals(record: DepartmentModuleState) {
     };
   });
 
-  const totalSales = rows.reduce((sum, row) => sum + row.amount, 0);
-  const totalTransfers = rows.reduce((sum, row) => sum + row.transfers, 0);
-  const totalDamages = rows.reduce((sum, row) => sum + row.damages, 0);
+  const totals = rows.reduce(
+    (acc, row) => ({
+      sales: acc.sales + row.amount,
+      transfers: acc.transfers + row.transfers,
+      damages: acc.damages + row.damages,
+    }),
+    { sales: 0, transfers: 0, damages: 0 },
+  );
+
   const computedCash =
-    totalSales -
+    totals.sales -
     record.transfersSection -
     record.pos -
     record.bossCollectedCash -
-    totalDamages;
+    totals.damages;
 
   return {
     rows,
-    totalSales,
-    totalTransfers,
-    totalDamages,
+    totalSales: totals.sales,
+    totalTransfers: totals.transfers,
+    totalDamages: totals.damages,
     computedCash,
     warnings: rows.map((row) => row.warning).filter(Boolean),
   };
