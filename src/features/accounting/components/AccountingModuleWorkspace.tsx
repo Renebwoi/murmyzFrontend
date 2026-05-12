@@ -361,7 +361,9 @@ export function AccountingModuleWorkspace({
       module: fallback.module,
       date: String(item.date ?? item.businessDate ?? fallback.date),
       rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
-      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+      warnings: Array.isArray(item.warnings)
+        ? item.warnings
+        : fallback.warnings,
     };
   };
 
@@ -378,7 +380,9 @@ export function AccountingModuleWorkspace({
       module: "reception",
       date: String(item.date ?? item.businessDate ?? fallback.date),
       rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
-      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+      warnings: Array.isArray(item.warnings)
+        ? item.warnings
+        : fallback.warnings,
     };
   };
 
@@ -951,10 +955,7 @@ export function AccountingModuleWorkspace({
         backendRecordId = synced.id;
       }
 
-      await accountingService.submitRecord(
-        module,
-        backendRecordId,
-      );
+      await accountingService.submitRecord(module, backendRecordId);
     } catch {
       // offline-friendly UI; backend sync will activate later
     }
@@ -1972,7 +1973,9 @@ export function AccountingModuleWorkspace({
                 </button>
                 <button
                   disabled={!canPerformAction(role, "confirm-cash")}
-                  onClick={() => handleApprovalAction(record.id, "confirm-cash")}
+                  onClick={() =>
+                    handleApprovalAction(record.id, "confirm-cash")
+                  }
                 >
                   Confirm cash
                 </button>
