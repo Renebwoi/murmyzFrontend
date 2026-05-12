@@ -221,7 +221,9 @@ const createNewInventoryRow = (): InventoryRow => ({
   inconsistency: "",
 });
 
-interface AutoGrowTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- keep interface form for easy extension when new textarea props are added
+interface AutoGrowTextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 function AutoGrowTextarea({
   className = "",
@@ -256,6 +258,8 @@ export function AccountingModuleWorkspace({
   role,
 }: AccountingModuleWorkspaceProps) {
   const navigate = useNavigate();
+
+  // Keep one in-memory list per module so users can switch days quickly.
   const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>([
     ...createHistoricApprovalRecords(MOCK_APPROVAL_RECORDS),
     ...MOCK_APPROVAL_RECORDS.map((record) => ({
@@ -624,6 +628,7 @@ export function AccountingModuleWorkspace({
   }
 
   const createDailyRecord = () => {
+    // Every module can only create one record per day.
     const date = todayKey();
 
     if (module === "vip") {
@@ -999,6 +1004,7 @@ export function AccountingModuleWorkspace({
   };
 
   const renderDepartment = (title: string, record: DepartmentModuleState) => {
+    // Department modules (VIP and Bar) share the same table structure.
     const totals = calculateDepartmentTotals(record);
     const debtExpense = debtLedgerService.getAcceptedUnpaidAmount(
       record.module,
@@ -1348,6 +1354,7 @@ export function AccountingModuleWorkspace({
   };
 
   const renderReception = () => {
+    // Reception has its own row shape and payment validation rules.
     const totals = receptionTotals;
     const debtExpense = debtLedgerService.getAcceptedUnpaidAmount(
       "reception",
@@ -1653,6 +1660,7 @@ export function AccountingModuleWorkspace({
   };
 
   const renderInventory = () => {
+    // Inventory focuses on purchases, transfers, and consistency checks.
     const totals = inventoryTotals;
     return (
       <div className="workspace-grid">
@@ -1881,6 +1889,7 @@ export function AccountingModuleWorkspace({
   };
 
   const renderApproval = () => {
+    // Boss approval is a daily review of submitted module records.
     const approvalHistory = approvalDates.map((date) => ({
       id: `approval-${date}`,
       date,

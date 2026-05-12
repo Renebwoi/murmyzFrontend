@@ -1,4 +1,4 @@
-'import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type {
   AuthState,
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isLoading: false,
           error: null,
         });
-      } catch (error) {
+      } catch {
         setAuthState((prev) => ({
           ...prev,
           isLoading: false,
@@ -106,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- keep hook next to provider for simpler onboarding
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
