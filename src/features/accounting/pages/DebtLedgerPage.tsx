@@ -26,14 +26,6 @@ export function DebtLedgerPage() {
   const [amount, setAmount] = useState("");
   const [explanation, setExplanation] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const role = user?.role;
-
-  // Decide what controls to show based on the logged-in user's role.
-  const moduleOptions = role ? debtLedgerService.getRoleModuleOptions(role) : [];
-  const canSubmit =
-    role === "vip-master" || role === "bar-master" || role === "receptionist";
-  const canAdminReview = role === "admin" || role === "boss";
-  const canBossMarkPaid = role === "boss";
 
   // Keep the table focused on one day and sorted newest-first.
   const filteredEntries = useMemo(
@@ -62,6 +54,15 @@ export function DebtLedgerPage() {
   }, [date]);
 
   if (!user) return null;
+
+  // Decide what controls to show based on the logged-in user's role.
+  const moduleOptions = debtLedgerService.getRoleModuleOptions(user.role);
+  const canSubmit =
+    user.role === "vip-master" ||
+    user.role === "bar-master" ||
+    user.role === "receptionist";
+  const canAdminReview = user.role === "admin" || user.role === "boss";
+  const canBossMarkPaid = user.role === "boss";
 
   const submitDebt = async (event: React.FormEvent) => {
     event.preventDefault();

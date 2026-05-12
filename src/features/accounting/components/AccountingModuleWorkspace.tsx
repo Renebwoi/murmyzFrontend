@@ -221,7 +221,9 @@ const createNewInventoryRow = (): InventoryRow => ({
   inconsistency: "",
 });
 
-type AutoGrowTextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- keep interface form for easy extension when new textarea props are added
+interface AutoGrowTextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 function AutoGrowTextarea({
   className = "",
