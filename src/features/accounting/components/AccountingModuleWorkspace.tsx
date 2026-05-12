@@ -258,8 +258,12 @@ export function AccountingModuleWorkspace({
   const [approvalRecords, setApprovalRecords] = useState<ApprovalRecord[]>([]);
   const [vipRecords, setVipRecords] = useState<DepartmentModuleState[]>([]);
   const [barRecords, setBarRecords] = useState<DepartmentModuleState[]>([]);
-  const [receptionRecords, setReceptionRecords] = useState<ReceptionModuleState[]>([]);
-  const [inventoryRecords, setInventoryRecords] = useState<InventoryModuleState[]>([]);
+  const [receptionRecords, setReceptionRecords] = useState<
+    ReceptionModuleState[]
+  >([]);
+  const [inventoryRecords, setInventoryRecords] = useState<
+    InventoryModuleState[]
+  >([]);
   const [isLoadingRecords, setIsLoadingRecords] = useState(true);
   const [selectedVipId, setSelectedVipId] = useState<string>(
     `vip-${todayKey()}`,
@@ -350,16 +354,16 @@ export function AccountingModuleWorkspace({
 
         if (approvalData) {
           setApprovalRecords(
-            Array.isArray(approvalData)
-              ? approvalData
-              : [approvalData],
+            Array.isArray(approvalData) ? approvalData : [approvalData],
           );
         } else {
           setApprovalRecords([createBlankApprovalRecord(dateKey)]);
         }
       } catch (error) {
         console.error("Failed to load accounting records:", error);
-        setWarning("Failed to load records from backend. Working with empty state.");
+        setWarning(
+          "Failed to load records from backend. Working with empty state.",
+        );
       } finally {
         setIsLoadingRecords(false);
       }
@@ -392,7 +396,9 @@ export function AccountingModuleWorkspace({
       module: fallback.module,
       date: String(item.date ?? item.businessDate ?? fallback.date),
       rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
-      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+      warnings: Array.isArray(item.warnings)
+        ? item.warnings
+        : fallback.warnings,
     };
   };
 
@@ -409,7 +415,9 @@ export function AccountingModuleWorkspace({
       module: "reception",
       date: String(item.date ?? item.businessDate ?? fallback.date),
       rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
-      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+      warnings: Array.isArray(item.warnings)
+        ? item.warnings
+        : fallback.warnings,
     };
   };
 
@@ -666,7 +674,9 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord = [...vipRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      const lastRecord = [...vipRecords]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1);
       if (!lastRecord) {
         setWarning("No existing VIP record was found to clone from.");
         return;
@@ -687,7 +697,9 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord = [...barRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      const lastRecord = [...barRecords]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1);
       if (!lastRecord) {
         setWarning("No existing Bar record was found to clone from.");
         return;
@@ -708,7 +720,9 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord = [...receptionRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      const lastRecord = [...receptionRecords]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1);
       if (!lastRecord) {
         setWarning("No existing Reception record was found to clone from.");
         return;
@@ -729,7 +743,9 @@ export function AccountingModuleWorkspace({
         return;
       }
 
-      const lastRecord = [...inventoryRecords].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+      const lastRecord = [...inventoryRecords]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .at(-1);
       if (!lastRecord) {
         setWarning("No existing Inventory record was found to clone from.");
         return;
@@ -988,10 +1004,7 @@ export function AccountingModuleWorkspace({
         backendRecordId = synced.id;
       }
 
-      await accountingService.submitRecord(
-        module,
-        backendRecordId,
-      );
+      await accountingService.submitRecord(module, backendRecordId);
     } catch {
       // offline-friendly UI; backend sync will activate later
     }
@@ -2009,7 +2022,9 @@ export function AccountingModuleWorkspace({
                 </button>
                 <button
                   disabled={!canPerformAction(role, "confirm-cash")}
-                  onClick={() => handleApprovalAction(record.id, "confirm-cash")}
+                  onClick={() =>
+                    handleApprovalAction(record.id, "confirm-cash")
+                  }
                 >
                   Confirm cash
                 </button>
