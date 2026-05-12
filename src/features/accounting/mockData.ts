@@ -41,7 +41,7 @@ export const MOCK_VIP_RECORD: DepartmentModuleState = {
   transfersSection: 0,
   pos: 0,
   bossCollectedCash: 0,
-  debtsExplanation: "",
+  debtsExplanation: "nill",
   submittedBy: "VIP Master",
   warnings: [],
 };
@@ -82,7 +82,7 @@ export const MOCK_BAR_RECORD: DepartmentModuleState = {
   transfersSection: 0,
   pos: 0,
   bossCollectedCash: 0,
-  debtsExplanation: "",
+  debtsExplanation: "nill",
   submittedBy: "Bar Master",
   warnings: [],
 };

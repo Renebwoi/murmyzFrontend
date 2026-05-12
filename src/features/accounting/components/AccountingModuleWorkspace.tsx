@@ -26,6 +26,7 @@ import type {
   ReceptionModuleState,
   RecordState,
 } from "../types";
+import type { ReceptionRow, InventoryRow } from "../types";
 import {
   calculateDepartmentTotals,
   calculateInventoryTotals,
@@ -179,8 +180,48 @@ function isLocked(state: RecordState) {
   return state !== "draft";
 }
 
-interface AutoGrowTextareaProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
+const createNewDepartmentRow = (): DepartmentModuleState["rows"][0] => ({
+  id: `dept-row-${Date.now()}`,
+  drinkName: "",
+  openingStock: 0,
+  newStock: 0,
+  totalStock: 0,
+  closingStock: 0,
+  drinksSold: 0,
+  price: 0,
+  amount: 0,
+  damages: 0,
+  transfers: 0,
+});
+
+const createNewReceptionRow = (): ReceptionRow => ({
+  id: `rec-row-${Date.now()}`,
+  customerName: "",
+  sex: "Other" as const,
+  timeIn: "",
+  timeOut: "",
+  room: "",
+  idNumber: "",
+  pos: 0,
+  transfer: 0,
+  cash: 0,
+  duration: "",
+  roomRate: 0,
+  amountPaid: 0,
+  existing: false,
+});
+
+const createNewInventoryRow = (): InventoryRow => ({
+  id: `inv-row-${Date.now()}`,
+  itemName: "",
+  quantity: 0,
+  unitPrice: 0,
+  totalCost: 0,
+  department: "Store" as const,
+  inconsistency: "",
+});
+
+interface AutoGrowTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 function AutoGrowTextarea({
   className = "",
@@ -279,6 +320,12 @@ export function AccountingModuleWorkspace({
     useState<string>(todayKey());
   const [warning, setWarning] = useState<string | null>(null);
   const [, setDebtRefresh] = useState(0);
+  const autoSyncInitializedRef = useRef({
+    vip: false,
+    bar: false,
+    reception: false,
+    inventory: false,
+  });
 
   useEffect(() => {
     return debtLedgerService.subscribe(() =>
@@ -300,6 +347,121 @@ export function AccountingModuleWorkspace({
   const inventoryRecord =
     inventoryRecords.find((record) => record.id === selectedInventoryId) ??
     inventoryRecords[0];
+
+  const normalizeDepartmentRecord = (
+    source: unknown,
+    fallback: DepartmentModuleState,
+  ): DepartmentModuleState => {
+    const item = source as Partial<DepartmentModuleState> & {
+      businessDate?: string;
+    };
+    return {
+      ...fallback,
+      ...item,
+      module: fallback.module,
+      date: String(item.date ?? item.businessDate ?? fallback.date),
+      rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
+      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+    };
+  };
+
+  const normalizeReceptionRecord = (
+    source: unknown,
+    fallback: ReceptionModuleState,
+  ): ReceptionModuleState => {
+    const item = source as Partial<ReceptionModuleState> & {
+      businessDate?: string;
+    };
+    return {
+      ...fallback,
+      ...item,
+      module: "reception",
+      date: String(item.date ?? item.businessDate ?? fallback.date),
+      rows: Array.isArray(item.rows) ? item.rows : fallback.rows,
+      warnings: Array.isArray(item.warnings) ? item.warnings : fallback.warnings,
+    };
+  };
+
+  const normalizeInventoryRecord = (
+    source: unknown,
+    fallback: InventoryModuleState,
+  ): InventoryModuleState => {
+    const item = source as Partial<InventoryModuleState> & {
+      businessDate?: string;
+    };
+    return {
+      ...fallback,
+      ...item,
+      module: "inventory",
+      date: String(item.date ?? item.businessDate ?? fallback.date),
+      purchases: Array.isArray(item.purchases)
+        ? item.purchases
+        : fallback.purchases,
+      flaggedInconsistencies: Array.isArray(item.flaggedInconsistencies)
+        ? item.flaggedInconsistencies
+        : fallback.flaggedInconsistencies,
+    };
+  };
+
+  const persistVipRecord = async (record: DepartmentModuleState) => {
+    const saved = await accountingService.upsertModuleRecord("vip", {
+      ...record,
+      module: "vip",
+      date: record.date,
+      businessDate: record.date,
+    });
+    const normalized = normalizeDepartmentRecord(saved, record);
+    setVipRecords((prev) =>
+      prev.map((entry) => (entry.id === record.id ? normalized : entry)),
+    );
+    if (normalized.id !== record.id) setSelectedVipId(normalized.id);
+    return normalized;
+  };
+
+  const persistBarRecord = async (record: DepartmentModuleState) => {
+    const saved = await accountingService.upsertModuleRecord("bar", {
+      ...record,
+      module: "bar",
+      date: record.date,
+      businessDate: record.date,
+    });
+    const normalized = normalizeDepartmentRecord(saved, record);
+    setBarRecords((prev) =>
+      prev.map((entry) => (entry.id === record.id ? normalized : entry)),
+    );
+    if (normalized.id !== record.id) setSelectedBarId(normalized.id);
+    return normalized;
+  };
+
+  const persistReceptionRecord = async (record: ReceptionModuleState) => {
+    const saved = await accountingService.upsertModuleRecord("reception", {
+      ...record,
+      module: "reception",
+      date: record.date,
+      businessDate: record.date,
+    });
+    const normalized = normalizeReceptionRecord(saved, record);
+    setReceptionRecords((prev) =>
+      prev.map((entry) => (entry.id === record.id ? normalized : entry)),
+    );
+    if (normalized.id !== record.id) setSelectedReceptionId(normalized.id);
+    return normalized;
+  };
+
+  const persistInventoryRecord = async (record: InventoryModuleState) => {
+    const saved = await accountingService.upsertModuleRecord("inventory", {
+      ...record,
+      module: "inventory",
+      date: record.date,
+      businessDate: record.date,
+    });
+    const normalized = normalizeInventoryRecord(saved, record);
+    setInventoryRecords((prev) =>
+      prev.map((entry) => (entry.id === record.id ? normalized : entry)),
+    );
+    if (normalized.id !== record.id) setSelectedInventoryId(normalized.id);
+    return normalized;
+  };
 
   const approvalDates = Array.from(
     new Set(approvalRecords.map((record) => record.date)),
@@ -384,6 +546,70 @@ export function AccountingModuleWorkspace({
     () => calculateInventoryTotals(inventoryRecord),
     [inventoryRecord],
   );
+
+  useEffect(() => {
+    if (module !== "vip" || !vipRecord) return;
+    if (!autoSyncInitializedRef.current.vip) {
+      autoSyncInitializedRef.current.vip = true;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistVipRecord(vipRecord).catch(() => {
+        setWarning("Unable to sync VIP record changes right now.");
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [module, vipRecord]);
+
+  useEffect(() => {
+    if (module !== "bar" || !barRecord) return;
+    if (!autoSyncInitializedRef.current.bar) {
+      autoSyncInitializedRef.current.bar = true;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistBarRecord(barRecord).catch(() => {
+        setWarning("Unable to sync Bar record changes right now.");
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [module, barRecord]);
+
+  useEffect(() => {
+    if (module !== "reception" || !receptionRecord) return;
+    if (!autoSyncInitializedRef.current.reception) {
+      autoSyncInitializedRef.current.reception = true;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistReceptionRecord(receptionRecord).catch(() => {
+        setWarning("Unable to sync Reception record changes right now.");
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [module, receptionRecord]);
+
+  useEffect(() => {
+    if (module !== "inventory" || !inventoryRecord) return;
+    if (!autoSyncInitializedRef.current.inventory) {
+      autoSyncInitializedRef.current.inventory = true;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistInventoryRecord(inventoryRecord).catch(() => {
+        setWarning("Unable to sync Inventory record changes right now.");
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [module, inventoryRecord]);
 
   if (!allowed) {
     return (
@@ -564,26 +790,10 @@ export function AccountingModuleWorkspace({
       prev.map((record) => {
         if (record.id !== selectedId) return record;
         if (isLocked(record.status) && role !== "boss") return record;
-
-        const nextIndex = record.rows.length + 1;
+        const newRow = createNewDepartmentRow();
         return {
           ...record,
-          rows: [
-            ...record.rows,
-            {
-              id: `${record.module}-row-${nextIndex}-${Date.now()}`,
-              drinkName: "",
-              openingStock: 0,
-              newStock: 0,
-              totalStock: 0,
-              closingStock: 0,
-              drinksSold: 0,
-              price: 0,
-              amount: 0,
-              damages: 0,
-              transfers: 0,
-            },
-          ],
+          rows: [...record.rows, newRow],
         };
       }),
     );
@@ -616,29 +826,10 @@ export function AccountingModuleWorkspace({
       prev.map((record) => {
         if (record.id !== selectedReceptionId) return record;
         if (isLocked(record.status) && role !== "boss") return record;
-
-        const nextIndex = record.rows.length + 1;
+        const newRow = createNewReceptionRow();
         return {
           ...record,
-          rows: [
-            ...record.rows,
-            {
-              id: `reception-row-${nextIndex}-${Date.now()}`,
-              customerName: "",
-              sex: "Other",
-              timeIn: "",
-              timeOut: "",
-              room: "",
-              idNumber: "",
-              pos: 0,
-              transfer: 0,
-              cash: 0,
-              duration: "",
-              roomRate: 0,
-              amountPaid: 0,
-              existing: false,
-            },
-          ],
+          rows: [...record.rows, newRow],
         };
       }),
     );
@@ -667,22 +858,10 @@ export function AccountingModuleWorkspace({
       prev.map((record) => {
         if (record.id !== selectedInventoryId) return record;
         if (isLocked(record.status) && role !== "boss") return record;
-
-        const nextIndex = record.purchases.length + 1;
+        const newRow = createNewInventoryRow();
         return {
           ...record,
-          purchases: [
-            ...record.purchases,
-            {
-              id: `inventory-row-${nextIndex}-${Date.now()}`,
-              itemName: "",
-              quantity: 0,
-              unitPrice: 0,
-              totalCost: 0,
-              department: "Store",
-              inconsistency: "",
-            },
-          ],
+          purchases: [...record.purchases, newRow],
         };
       }),
     );
@@ -744,8 +923,7 @@ export function AccountingModuleWorkspace({
       );
 
     try {
-      await accountingService.submitRecord(
-        module,
+      let backendRecordId =
         module === "approval"
           ? "approval"
           : module === "vip"
@@ -754,7 +932,28 @@ export function AccountingModuleWorkspace({
               ? selectedBarId
               : module === "reception"
                 ? selectedReceptionId
-                : selectedInventoryId,
+                : selectedInventoryId;
+
+      if (module === "vip" && vipRecord) {
+        const synced = await persistVipRecord(vipRecord);
+        backendRecordId = synced.id;
+      }
+      if (module === "bar" && barRecord) {
+        const synced = await persistBarRecord(barRecord);
+        backendRecordId = synced.id;
+      }
+      if (module === "reception" && receptionRecord) {
+        const synced = await persistReceptionRecord(receptionRecord);
+        backendRecordId = synced.id;
+      }
+      if (module === "inventory" && inventoryRecord) {
+        const synced = await persistInventoryRecord(inventoryRecord);
+        backendRecordId = synced.id;
+      }
+
+      await accountingService.submitRecord(
+        module,
+        backendRecordId,
       );
     } catch {
       // offline-friendly UI; backend sync will activate later
@@ -1648,6 +1847,39 @@ export function AccountingModuleWorkspace({
     );
   };
 
+  const handleApprovalAction = async (
+    recordId: string,
+    action: "approve" | "reject" | "reopen" | "confirm-cash" | "sign-off",
+  ) => {
+    try {
+      const updated =
+        action === "approve"
+          ? await accountingService.approveRecord(recordId)
+          : action === "reject"
+            ? await accountingService.rejectRecord(recordId)
+            : action === "reopen"
+              ? await accountingService.reopenRecord(recordId)
+              : action === "confirm-cash"
+                ? await accountingService.confirmCash(recordId)
+                : await accountingService.signOff(recordId);
+      const updatedRecord = updated as Partial<ApprovalRecord>;
+      setApprovalRecords((prev) =>
+        prev.map((item) =>
+          item.id === recordId
+            ? {
+                ...item,
+                status: updatedRecord.status ?? item.status,
+                notes: updatedRecord.notes ?? item.notes,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error(`Approval ${action} failed:`, error);
+      setWarning(`Failed to ${action} approval record.`);
+    }
+  };
+
   const renderApproval = () => {
     const approvalHistory = approvalDates.map((date) => ({
       id: `approval-${date}`,
@@ -1722,71 +1954,31 @@ export function AccountingModuleWorkspace({
               <div className="approval-actions">
                 <button
                   disabled={!canPerformAction(role, "approve")}
-                  onClick={() =>
-                    setApprovalRecords((prev) =>
-                      prev.map((item) =>
-                        item.id === record.id
-                          ? { ...item, status: "approved" }
-                          : item,
-                      ),
-                    )
-                  }
+                  onClick={() => handleApprovalAction(record.id, "approve")}
                 >
                   Approve
                 </button>
                 <button
                   disabled={!canPerformAction(role, "reject")}
-                  onClick={() =>
-                    setApprovalRecords((prev) =>
-                      prev.map((item) =>
-                        item.id === record.id
-                          ? { ...item, status: "partially-resolved" }
-                          : item,
-                      ),
-                    )
-                  }
+                  onClick={() => handleApprovalAction(record.id, "reject")}
                 >
                   Reject
                 </button>
                 <button
                   disabled={!canPerformAction(role, "reopen")}
-                  onClick={() =>
-                    setApprovalRecords((prev) =>
-                      prev.map((item) =>
-                        item.id === record.id
-                          ? { ...item, status: "draft" }
-                          : item,
-                      ),
-                    )
-                  }
+                  onClick={() => handleApprovalAction(record.id, "reopen")}
                 >
                   Reopen
                 </button>
                 <button
                   disabled={!canPerformAction(role, "confirm-cash")}
-                  onClick={() =>
-                    setApprovalRecords((prev) =>
-                      prev.map((item) =>
-                        item.id === record.id
-                          ? { ...item, status: "fully-resolved" }
-                          : item,
-                      ),
-                    )
-                  }
+                  onClick={() => handleApprovalAction(record.id, "confirm-cash")}
                 >
                   Confirm cash
                 </button>
                 <button
                   disabled={!canPerformAction(role, "sign-off")}
-                  onClick={() =>
-                    setApprovalRecords((prev) =>
-                      prev.map((item) =>
-                        item.id === record.id
-                          ? { ...item, notes: `${item.notes} | Signed off` }
-                          : item,
-                      ),
-                    )
-                  }
+                  onClick={() => handleApprovalAction(record.id, "sign-off")}
                 >
                   Sign off
                 </button>
