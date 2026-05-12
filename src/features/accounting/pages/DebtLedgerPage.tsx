@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useAuth } from "../../../auth/AuthProvider";
 import { formatCurrency } from "../utils";
 import {
@@ -16,25 +16,26 @@ function statusLabel(status: DebtLedgerEntry["status"]) {
 
 export function DebtLedgerPage() {
   const { user } = useAuth();
-  const [entries, setEntries] = useState<DebtLedgerEntry[]>(
-    debtLedgerService.getEntries(),
+  const entries = useSyncExternalStore(
+    debtLedgerService.subscribe,
+    debtLedgerService.getEntries,
+    debtLedgerService.getEntries,
   );
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [module, setModule] = useState<"vip" | "bar" | "reception">("vip");
   const [amount, setAmount] = useState("");
   const [explanation, setExplanation] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const role = user?.role;
 
-  if (!user) return null;
-
-  const moduleOptions = debtLedgerService.getRoleModuleOptions(user.role);
+  // Decide what controls to show based on the logged-in user's role.
+  const moduleOptions = role ? debtLedgerService.getRoleModuleOptions(role) : [];
   const canSubmit =
-    user.role === "vip-master" ||
-    user.role === "bar-master" ||
-    user.role === "receptionist";
-  const canAdminReview = user.role === "admin" || user.role === "boss";
-  const canBossMarkPaid = user.role === "boss";
+    role === "vip-master" || role === "bar-master" || role === "receptionist";
+  const canAdminReview = role === "admin" || role === "boss";
+  const canBossMarkPaid = role === "boss";
 
+  // Keep the table focused on one day and sorted newest-first.
   const filteredEntries = useMemo(
     () =>
       entries
@@ -55,23 +56,12 @@ export function DebtLedgerPage() {
     (entry) => entry.status === "pending-admin",
   ).length;
 
-  const refreshEntries = async (selectedDate = date) => {
-    await debtLedgerService.refresh({ date: selectedDate });
-    setEntries(debtLedgerService.getEntries());
-  };
-
+  // Load entries when the selected date changes.
   useEffect(() => {
-    const unsubscribe = debtLedgerService.subscribe(() => {
-      setEntries(debtLedgerService.getEntries());
-    });
-
-    void refreshEntries(date);
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    void refreshEntries(date);
+    void debtLedgerService.refresh({ date });
   }, [date]);
+
+  if (!user) return null;
 
   const submitDebt = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -105,7 +95,7 @@ export function DebtLedgerPage() {
 
       setAmount("");
       setExplanation("");
-      await refreshEntries();
+      await debtLedgerService.refresh({ date });
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -118,7 +108,7 @@ export function DebtLedgerPage() {
   const approve = async (id: string) => {
     try {
       await debtLedgerService.approveEntry(id, user.username);
-      await refreshEntries();
+      await debtLedgerService.refresh({ date });
     } catch (approveError) {
       setError(
         approveError instanceof Error
@@ -131,7 +121,7 @@ export function DebtLedgerPage() {
   const reject = async (id: string) => {
     try {
       await debtLedgerService.rejectEntry(id, user.username);
-      await refreshEntries();
+      await debtLedgerService.refresh({ date });
     } catch (rejectError) {
       setError(
         rejectError instanceof Error
@@ -144,7 +134,7 @@ export function DebtLedgerPage() {
   const markPaid = async (id: string) => {
     try {
       await debtLedgerService.markPaid(id, user.username);
-      await refreshEntries();
+      await debtLedgerService.refresh({ date });
     } catch (paidError) {
       setError(
         paidError instanceof Error
@@ -156,6 +146,7 @@ export function DebtLedgerPage() {
 
   return (
     <div className="debt-ledger-page">
+      {/* Intro block: explains why this page exists. */}
       <div className="debt-ledger-hero">
         <h2>Debt & Explanation Ledger</h2>
         <p>
@@ -165,6 +156,7 @@ export function DebtLedgerPage() {
         </p>
       </div>
 
+      {/* Quick daily summary block for operators and reviewers. */}
       <div className="debt-ledger-summary">
         <div>
           <span>Selected Date</span>
@@ -180,6 +172,7 @@ export function DebtLedgerPage() {
         </div>
       </div>
 
+      {/* Date filter block controls which day's ledger is shown. */}
       <div className="debt-ledger-toolbar">
         <label>
           Date
@@ -191,6 +184,7 @@ export function DebtLedgerPage() {
         </label>
       </div>
 
+      {/* Worker-only form block for creating a debt entry. */}
       {canSubmit ? (
         <form className="debt-ledger-form" onSubmit={submitDebt}>
           <h3>New Debt Entry</h3>
@@ -234,6 +228,7 @@ export function DebtLedgerPage() {
         </form>
       ) : null}
 
+      {/* Main ledger table block with review/pay actions by role. */}
       <div className="debt-ledger-table-wrap">
         <table className="debt-ledger-table">
           <thead>

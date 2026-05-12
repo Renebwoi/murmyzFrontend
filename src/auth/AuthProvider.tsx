@@ -1,4 +1,5 @@
-'import { createContext, useContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type {
   AuthState,
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isLoading: false,
           error: null,
         });
-      } catch (error) {
+      } catch {
         setAuthState((prev) => ({
           ...prev,
           isLoading: false,
